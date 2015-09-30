@@ -2,11 +2,9 @@ package sam.android.utils.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -25,7 +23,7 @@ import sam.android.utils.adapter.identification.HolderSerialize;
  * RecyclerView.Adapter 基类
  * Created by Sam on 2015/9/23.
  */
-public abstract class BaseRecyclerAdapter<C extends  HolderSerialize,G extends  HolderSerialize,H extends  HolderSerialize,F extends  HolderSerialize> extends RecyclerView.Adapter
+public abstract class BaseRecyclerViewAdapter<C extends  HolderSerialize,G extends  HolderSerialize,H extends  HolderSerialize,F extends  HolderSerialize> extends RecyclerView.Adapter
     implements OnContentItemClickedListener, OnGroupItemClickedListener, OnFooterItemClickedListener, OnHeaderItemClickedListener
 {
 
@@ -33,7 +31,7 @@ public abstract class BaseRecyclerAdapter<C extends  HolderSerialize,G extends  
 
     private Context context;
 
-    public BaseRecyclerAdapter(Context context) {
+    public BaseRecyclerViewAdapter(Context context) {
         this.context = context;
 
     }
@@ -66,7 +64,7 @@ public abstract class BaseRecyclerAdapter<C extends  HolderSerialize,G extends  
 
         public BaseViewHolder(View itemView) throws IllegalAccessException {
             super(itemView);
-            Class baseAdapterClassType = BaseRecyclerAdapter.this.getClass();
+            Class baseAdapterClassType = BaseRecyclerViewAdapter.this.getClass();
             if (baseAdapterClassType.isAnnotationPresent(ConfigHolder.class)) {
                 ConfigHolder configAdapter = (ConfigHolder) baseAdapterClassType.getAnnotation(ConfigHolder.class);
                 Class<HolderSerialize> holderClass = supportViewHolder(configAdapter);
@@ -185,7 +183,7 @@ public abstract class BaseRecyclerAdapter<C extends  HolderSerialize,G extends  
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
-        Class baseAdapterClassType = BaseRecyclerAdapter.this.getClass();
+        Class baseAdapterClassType = BaseRecyclerViewAdapter.this.getClass();
         ConfigHolder configAdapter = (ConfigHolder) baseAdapterClassType.getAnnotation(ConfigHolder.class);
         try {
             switch (type) {

@@ -9,10 +9,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.List;
-
 import sam.android.demo.R;
-import sam.android.utils.adapter.BaseRecyclerAdapter;
+import sam.android.utils.adapter.BaseRecyclerViewAdapter;
 import sam.android.utils.adapter.ann.ConfigHolder;
 import sam.android.utils.adapter.ann.ConfigLayout;
 import sam.android.utils.adapter.ann.ConfigView;
@@ -43,13 +41,13 @@ public class MutilLayoutActivity extends Activity {
 
     }
 
-    private MyAdapter adapter;
+    private MyViewAdapter adapter;
 
     private void intiUi() {
         LinearLayoutManager lin = new LinearLayoutManager(this);
         lin.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(lin);
-        adapter = new MyAdapter(this);
+        adapter = new MyViewAdapter(this);
         recyclerView.setAdapter(adapter);
         HeaderItem headerItem = new HeaderItem();
         headerItem.data = "头部";
@@ -106,8 +104,8 @@ public class MutilLayoutActivity extends Activity {
     }
 
     @ConfigHolder(contentHolder = ContentHolder.class, headerHolder = HeaderHolder.class, footerHolder = FooterHolder.class, groupHolder = GroupHolder.class)
-    private class MyAdapter extends BaseRecyclerAdapter<ContentHolder, GroupHolder, HeaderHolder, FooterHolder> {
-        public MyAdapter(Context context) {
+    private class MyViewAdapter extends BaseRecyclerViewAdapter<ContentHolder, GroupHolder, HeaderHolder, FooterHolder> {
+        public MyViewAdapter(Context context) {
             super(context);
         }
 

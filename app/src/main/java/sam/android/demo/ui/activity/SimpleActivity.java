@@ -9,10 +9,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.List;
-
 import sam.android.demo.R;
-import sam.android.utils.adapter.BaseRecyclerAdapter;
+import sam.android.utils.adapter.BaseRecyclerViewAdapter;
 import sam.android.utils.adapter.ann.ConfigHolder;
 import sam.android.utils.adapter.ann.ConfigLayout;
 import sam.android.utils.adapter.ann.ConfigView;
@@ -38,14 +36,14 @@ public class SimpleActivity  extends Activity{
 
     }
 
-    private MyAdapter adapter;
+    private MyViewAdapter adapter;
 
     private void intiUi()
     {
         LinearLayoutManager lin = new LinearLayoutManager(this);
         lin.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(lin);
-        adapter = new MyAdapter(this);
+        adapter = new MyViewAdapter(this);
         recyclerView.setAdapter(adapter);
         for(int i = 0; i < 10; i ++)
         {
@@ -67,9 +65,9 @@ public class SimpleActivity  extends Activity{
     }
 
     @ConfigHolder(contentHolder = ContentHolder.class)
-    private class MyAdapter extends BaseRecyclerAdapter<ContentHolder,HolderSerialize, HolderSerialize, HolderSerialize>
+    private class MyViewAdapter extends BaseRecyclerViewAdapter<ContentHolder,HolderSerialize, HolderSerialize, HolderSerialize>
     {
-        public MyAdapter(Context context) {
+        public MyViewAdapter(Context context) {
             super(context);
         }
 
