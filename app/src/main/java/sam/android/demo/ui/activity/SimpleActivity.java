@@ -57,14 +57,16 @@ public class SimpleActivity  extends Activity{
         adapter.notifyDataSetChanged();
     }
 
-
+    //注入item布局
     @ConfigLayout(R.layout.adapter_layout_recyclerview)
     public static  class ContentHolder implements  HolderSerialize
     {
+        //注入View的id ，让框架本身给它提供引用
         @ConfigView(R.id.tv_data)
        public   TextView dataView;
     }
 
+    //注入配置好的holder
     @ConfigHolder(contentHolder = ContentHolder.class)
     private class MyViewAdapter extends BaseRecyclerViewAdapter<ContentHolder,Null, Null, Null>
     {
@@ -72,12 +74,14 @@ public class SimpleActivity  extends Activity{
             super(context);
         }
 
+        //列表内容每一项的绘制
         @Override
         protected void onContentUpdate(ContentHolder holder, int position, Item item) {
             TextView dataView = holder.dataView;
             dataView.setText((String) item.data);
         }
 
+        //列表的点击事件
         @Override
         public void onContentClicked(View view, int position, Item item) {
             Toast.makeText(getApplicationContext(), ""+item.data, Toast.LENGTH_SHORT).show();
