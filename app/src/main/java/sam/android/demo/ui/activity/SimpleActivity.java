@@ -17,6 +17,7 @@ import sam.android.utils.adapter.ann.ConfigView;
 import sam.android.utils.adapter.bean.ContentItem;
 import sam.android.utils.adapter.bean.Item;
 import sam.android.utils.adapter.identification.HolderSerialize;
+import sam.android.utils.adapter.identification.Null;
 
 /**
  * Created by Administrator on 2015/9/29.
@@ -65,7 +66,7 @@ public class SimpleActivity  extends Activity{
     }
 
     @ConfigHolder(contentHolder = ContentHolder.class)
-    private class MyViewAdapter extends BaseRecyclerViewAdapter<ContentHolder,HolderSerialize, HolderSerialize, HolderSerialize>
+    private class MyViewAdapter extends BaseRecyclerViewAdapter<ContentHolder,Null, Null, Null>
     {
         public MyViewAdapter(Context context) {
             super(context);
