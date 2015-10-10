@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import sam.android.demo.R;
 import sam.android.utils.adapter.BaseRecyclerViewAdapter;
-import sam.android.utils.adapter.ann.ConfigHolder;
 import sam.android.utils.adapter.ann.ConfigLayout;
 import sam.android.utils.adapter.ann.ConfigView;
 import sam.android.utils.adapter.bean.ContentItem;
@@ -75,35 +74,36 @@ public class MutilLayoutActivity extends Activity {
         adapter.notifyDataSetChanged();
     }
 
-
+    //内容
     @ConfigLayout(R.layout.adapter_layout_recyclerview)
     public static class ContentHolder implements HolderSerialize {
         @ConfigView(R.id.tv_data)
         public TextView dataView;
     }
 
-
+    //头部
     @ConfigLayout(R.layout.adapter_layout_recyclerview)
     public static class HeaderHolder implements HolderSerialize {
         @ConfigView(R.id.tv_data)
         public TextView dataView;
     }
 
-
+    //尾部
     @ConfigLayout(R.layout.adapter_layout_recyclerview)
     public static class FooterHolder implements HolderSerialize {
         @ConfigView(R.id.tv_data)
         public TextView dataView;
     }
 
-
+    //分组
     @ConfigLayout(R.layout.adapter_layout_recyclerview)
     public static class GroupHolder implements HolderSerialize {
         @ConfigView(R.id.tv_data)
         public TextView dataView;
     }
 
-    @ConfigHolder(contentHolder = ContentHolder.class, headerHolder = HeaderHolder.class, footerHolder = FooterHolder.class, groupHolder = GroupHolder.class)
+
+    //泛型类别分别是内容，分组， 头部，尾部。不实现用Null
     private class MyViewAdapter extends BaseRecyclerViewAdapter<ContentHolder, GroupHolder, HeaderHolder, FooterHolder> {
         public MyViewAdapter(Context context) {
             super(context);

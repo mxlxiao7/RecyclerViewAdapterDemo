@@ -9,10 +9,11 @@ import android.view.ViewGroup;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import sam.android.utils.adapter.ann.ConfigHolder;
 import sam.android.utils.adapter.ann.ConfigView;
 import sam.android.utils.adapter.ann.ConfigLayout;
 import sam.android.utils.adapter.bean.Item;
@@ -26,7 +27,10 @@ import sam.android.utils.adapter.identification.HolderSerialize;
 public abstract class BaseRecyclerViewAdapter<C extends  HolderSerialize,G extends  HolderSerialize,H extends  HolderSerialize,F extends  HolderSerialize> extends RecyclerView.Adapter
     implements OnContentItemClickedListener, OnGroupItemClickedListener, OnFooterItemClickedListener, OnHeaderItemClickedListener
 {
-
+    protected final int POSITION_CONTENT = 0;
+    protected final int POSITION_GROUP = 1;
+    protected final int POSITION_HEADER = 2;
+    protected final int POSITION_FOOTER= 3;
     private List<Item> itemList = new ArrayList<Item>();
 
     private Context context;
@@ -59,49 +63,66 @@ public abstract class BaseRecyclerViewAdapter<C extends  HolderSerialize,G exten
     private abstract class BaseViewHolder extends RecyclerView.ViewHolder {
         private HolderSerialize viewContent;
         public HolderSerialize holderInstance;
-
-        protected abstract Class supportViewHolder(ConfigHolder adapter);
+        protected abstract Class supportViewHolder();
 
         public BaseViewHolder(View itemView) throws IllegalAccessException {
             super(itemView);
-            Class baseAdapterClassType = BaseRecyclerViewAdapter.this.getClass();
-            if (baseAdapterClassType.isAnnotationPresent(ConfigHolder.class)) {
-                ConfigHolder configAdapter = (ConfigHolder) baseAdapterClassType.getAnnotation(ConfigHolder.class);
-                Class<HolderSerialize> holderClass = supportViewHolder(configAdapter);
-                if (!holderClass.isAssignableFrom(Null.class)) {
-                    Constructor<?> constructor = holderClass.getConstructors()[0];
-                    try {
-                        holderInstance = (HolderSerialize) constructor.newInstance();
-                    } catch (InstantiationException e) {
-                        throw new RuntimeException("cant not new instance for "+getClass().getSimpleName());
-                    } catch (InvocationTargetException e) {
-                        throw new RuntimeException("cant not new instance for "+getClass().getSimpleName());
-                    }
-                    Field[] fields = holderClass.getFields();
-                    if (null != fields) {
-                        for (Field field : fields) {
-                            if (field.isAnnotationPresent(ConfigView.class)) {
-                                Class classtype = field.getType();
-                                if(!classtype.isPrimitive())
+            Class<HolderSerialize> holderClass = supportViewHolder();
+            if (!holderClass.isAssignableFrom(Null.class)) {
+                Constructor<?> constructor = holderClass.getConstructors()[0];
+                constructor.setAccessible(true);
+                try {
+                    holderInstance = (HolderSerialize) constructor.newInstance();
+                } catch (InstantiationException e) {
+                    throw new RuntimeException("cant not new instance for "+getClass().getSimpleName());
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException("cant not new instance for "+getClass().getSimpleName());
+                }
+                Field[] fields = holderClass.getFields();
+                if (null != fields) {
+                    for (Field field : fields) {
+                        field.setAccessible(true);
+                        if (field.isAnnotationPresent(ConfigView.class)) {
+                            Class classtype = field.getType();
+                            if(!classtype.isPrimitive())
+                            {
+                                ConfigView configHolder = field.getAnnotation(ConfigView.class);
+                                if(View.class.isAssignableFrom(classtype) || ViewGroup.class.isAssignableFrom(classtype))
                                 {
-                                    ConfigView configHolder = field.getAnnotation(ConfigView.class);
-                                    if(View.class.isAssignableFrom(classtype) || ViewGroup.class.isAssignableFrom(classtype))
-                                    {
-                                        int resourceId = configHolder.value();
-                                        field.set(holderInstance, itemView.findViewById(resourceId));
-                                    }
+                                    int resourceId = configHolder.value();
+                                    field.set(holderInstance, itemView.findViewById(resourceId));
                                 }
-
                             }
+
                         }
                     }
-
-                } else {
-                    throw new RuntimeException("you must support a ConfigHodler annimotion for your holder that name is " + getClass().getSimpleName());
                 }
-
             }
+
+
         }
+
+
+
+
+    }
+
+    /**
+     * 获取对应位置泛型的class
+     * @param postion
+     * @return
+     */
+    protected    Class getSupportClass(int postion)
+    {
+        Type genType = getClass().getGenericSuperclass();
+        if (!(genType instanceof ParameterizedType)) {
+            return Null.class;
+        }
+        Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
+        if (!(params[postion] instanceof Class)) {
+            return Null.class;
+        }
+        return (Class) params[postion];
     }
 
 
@@ -116,8 +137,10 @@ public abstract class BaseRecyclerViewAdapter<C extends  HolderSerialize,G exten
             onHeaderClicked(v, getPosition(), itemList.get(getPosition()));
         }
         @Override
-        protected Class supportViewHolder(ConfigHolder adapter) {
-            return adapter.headerHolder();
+        protected Class supportViewHolder() {
+
+
+            return getSupportClass(POSITION_HEADER);
         }
     }
 
@@ -137,8 +160,8 @@ public abstract class BaseRecyclerViewAdapter<C extends  HolderSerialize,G exten
 
 
         @Override
-        protected Class supportViewHolder(ConfigHolder adapter) {
-            return adapter.footerHolder();
+        protected Class supportViewHolder() {
+            return getSupportClass(POSITION_FOOTER);
         }
     }
 
@@ -155,8 +178,8 @@ public abstract class BaseRecyclerViewAdapter<C extends  HolderSerialize,G exten
         }
 
         @Override
-        protected Class supportViewHolder(ConfigHolder adapter) {
-            return adapter.contentHolder();
+        protected Class supportViewHolder() {
+            return getSupportClass(POSITION_CONTENT);
         }
     }
 
@@ -169,8 +192,8 @@ public abstract class BaseRecyclerViewAdapter<C extends  HolderSerialize,G exten
         }
 
         @Override
-        protected Class supportViewHolder(ConfigHolder adapter) {
-            return adapter.groupHolder();
+        protected Class supportViewHolder() {
+            return getSupportClass(POSITION_GROUP);
         }
 
         @Override
@@ -183,34 +206,33 @@ public abstract class BaseRecyclerViewAdapter<C extends  HolderSerialize,G exten
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
-        Class baseAdapterClassType = BaseRecyclerViewAdapter.this.getClass();
-        ConfigHolder configAdapter = (ConfigHolder) baseAdapterClassType.getAnnotation(ConfigHolder.class);
+
         try {
             switch (type) {
                 case Item.TYPE_CONTENT: {
-                    Class headerHolderClass = configAdapter.contentHolder();
-                    ConfigLayout configHolderLayout = (ConfigLayout) headerHolderClass.getAnnotation(ConfigLayout.class);
+                    Class holderClass = getSupportClass(POSITION_CONTENT);
+                    ConfigLayout configHolderLayout = (ConfigLayout) holderClass.getAnnotation(ConfigLayout.class);
                     int layout = configHolderLayout.value();
                      View convertView =  LayoutInflater.from(context).inflate(layout, viewGroup, false);
 
                     return new ContentViewHolder(convertView);
                 }
                 case Item.TYPE_HEADER: {
-                    Class headerHolderClass = configAdapter.headerHolder();
-                    ConfigLayout configHolderLayout = (ConfigLayout) headerHolderClass.getAnnotation(ConfigLayout.class);
+                    Class holderClass = getSupportClass(POSITION_HEADER);
+                    ConfigLayout configHolderLayout = (ConfigLayout) holderClass.getAnnotation(ConfigLayout.class);
                     return new HeaderViewHolder(LayoutInflater.from(context).inflate(configHolderLayout.value(), viewGroup, false));
 
                 }
 
                 case Item.TYPE_GROUP: {
-                    Class headerHolderClass = configAdapter.groupHolder();
-                    ConfigLayout configHolderLayout = (ConfigLayout) headerHolderClass.getAnnotation(ConfigLayout.class);
+                    Class holderClass = getSupportClass(POSITION_GROUP);
+                    ConfigLayout configHolderLayout = (ConfigLayout) holderClass.getAnnotation(ConfigLayout.class);
                     return new GroupHolder(LayoutInflater.from(context).inflate(configHolderLayout.value(), viewGroup, false));
                 }
 
                 case Item.TYPE_FOOTER: {
-                    Class headerHolderClass = configAdapter.footerHolder();
-                    ConfigLayout configHolderLayout = (ConfigLayout) headerHolderClass.getAnnotation(ConfigLayout.class);
+                    Class holderClass = getSupportClass(POSITION_FOOTER);
+                    ConfigLayout configHolderLayout = (ConfigLayout) holderClass.getAnnotation(ConfigLayout.class);
                     return new FooterViewHolder(LayoutInflater.from(context).inflate(configHolderLayout.value(), viewGroup, false));
                 }
             }

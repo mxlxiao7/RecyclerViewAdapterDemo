@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import sam.android.demo.R;
 import sam.android.utils.adapter.BaseRecyclerViewAdapter;
-import sam.android.utils.adapter.ann.ConfigHolder;
 import sam.android.utils.adapter.ann.ConfigLayout;
 import sam.android.utils.adapter.ann.ConfigView;
 import sam.android.utils.adapter.bean.ContentItem;
@@ -52,8 +51,6 @@ public class SimpleActivity  extends Activity{
             item.data = ""+i;
             adapter.getItemList().add(item);
         }
-        ContentItem item = new ContentItem();
-        adapter.getItemList().add(item);
         adapter.notifyDataSetChanged();
     }
 
@@ -66,8 +63,7 @@ public class SimpleActivity  extends Activity{
        public   TextView dataView;
     }
 
-    //注入配置好的holder
-    @ConfigHolder(contentHolder = ContentHolder.class)
+    //泛型类别分别是内容，分组， 头部，尾部。部分不实现用Null代替
     private class MyViewAdapter extends BaseRecyclerViewAdapter<ContentHolder,Null, Null, Null>
     {
         public MyViewAdapter(Context context) {
